@@ -13,16 +13,24 @@
 
 class Game {
 	constructor (p1, p2, WIDTH = 7, HEIGHT = 6) {
-		this.players = [ p1, p2 ];
+		// const p1ColorInput = document.getElementById('p1-color');
+		// const p2ColorInput = document.getElementById('p2-color');
+
+		// const p1Color = p1ColorInput.value;
+		// const p2Color = p2ColorInput.value;
+
+		// this.players = [
+ 		//  { name: 'p1', color: p1Color },
+ 		//  { name: 'p2', color: p2Color }];
+		this.players = [ p1, p2 ]
 		this.WIDTH = WIDTH;
 		this.HEIGHT = HEIGHT;
-		// this.board = [];
 		this.currPlayer = p1;
-		this.makeBoard(); /* = makeBoard(); */
-		this.makeHtmlBoard(); /* = makeHtmlBoard(); */
+		this.makeBoard();
+		this.makeHtmlBoard();
 		this.gameOver = false;
-
 	}
+	
 	makeBoard () {
 		this.board = [];
 		for (let y = 0; y < this.HEIGHT; y++) {
@@ -80,7 +88,7 @@ class Game {
 	}
 	endGame (msg) {
 		alert(msg);
-		const top = document.getElementById(`${y}-${x}`);
+		const top = document.querySelector('#column-top');
 		top.removeEventListener('click', this.handleGameClick);
 		this.gameOver = true;
 	}
@@ -95,8 +103,13 @@ class Game {
 		}
 
 		// place piece in board and add to HTML table
-		this.color[y][x] = this.currPlayer;
+		this.board[y][x] = this.currPlayer;
 		this.placeInTable(y, x);
+
+		// check for tie
+		if (this.board.every((row) => row.every((cell) => cell))) {
+			return this.endGame('Tie!');
+		}
 
 		// check for win
 		if (this.checkForWin()) {
@@ -104,14 +117,10 @@ class Game {
 			return this.endGame(`Player ${this.currPlayer.color} won!`);
 		}
 
-		// check for tie
-		if (this.board.every((row) => row.every((cell) => cell))) {
-			return this.endGame('Tie!');
-		}
-
 		// switch players
-		this.currPlayer = this.currPlayer === this.players[0] ? this.players[1] : this.players[0];
+		this.currPlayer = this.currPlayer === this.players[0] ? this.players[1]: this.players[0];
 	}
+
 	checkForWin () {
 			// Check four cells to see if they're all color of current player
 			//  - cells: list of four (y, x) cells
@@ -123,7 +132,7 @@ class Game {
 					y < this.HEIGHT && 
 					x >= 0 && 
 					x < this.WIDTH && 
-					this.board[y][x] === this.currPlayer.color
+					this.board[y][x] === this.currPlayer
 			);
 
 		for (let y = 0; y < this.HEIGHT; y++) {
@@ -137,21 +146,27 @@ class Game {
 				
 				// find winner (only checking each win-possibility as needed)
 				if (_win(horiz) || _win(vert) || _win(diagDR) || _win(diagDL)) {
-					return true;
+					return this.currPlayer;
 				}
 			}
 		}
+		return null
 	}
 }
+
 class Player {
-		constructor(color) {
-			this.color = color
-		}
+	constructor(color) {
+	  this.color = color;
 	}
+  }
+  
+  document.getElementById('newGame').addEventListener('click', () => {
+	let p1 = new Player(document.getElementById('p1-color').value);
+	let p2 = new Player(document.getElementById('p2-color').value);
+	new Game(p1, p2);
+  });
 
-new Game();
-
-
+new Game(6, 7)
 
 // document.getElementById('newGame').addEventListener('click', () => {
 // 	let p1 = new Player(document.getElementById('p1-color').value);
